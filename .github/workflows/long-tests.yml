@@ -35,7 +35,7 @@ jobs:
           rm -rf ./gpu-simulator/gpgpu-sim
           source ./gpu-simulator/setup_environment.sh
           make clean -C gpu-simulator
-          srun -c20 make -j20 -C gpu-simulator
+          srun --time=8:00:00 -c20 make -j20 -C gpu-simulator
       - name: Run SASS
         run: |
           source ./env-setup/12.4_env_setup.sh
@@ -111,7 +111,7 @@ jobs:
           rm -rf ./gpu-simulator/gpgpu-sim
           source ./gpu-simulator/setup_environment.sh
           make clean -C gpu-simulator
-          srun -c20 make -j20 -C gpu-simulator
+          srun --time=8:00:00 -c20 make -j20 -C gpu-simulator
       - name: Run PTX
         run: |
           source ./env-setup/12.4_env_setup.sh
@@ -120,7 +120,7 @@ jobs:
           rm -rf ./gpu-app-collection
           git clone -b dev  git@github.com:accel-sim/gpu-app-collection.git
           source ./gpu-app-collection/src/setup_environment
-          srun -c20 make rodinia_2.0-ft GPU_Microbenchmark -j20 -C ./gpu-app-collection/src
+          srun --time=8:00:00 -c20 make rodinia_2.0-ft GPU_Microbenchmark -j20 -C ./gpu-app-collection/src
           ./gpu-app-collection/get_regression_data.sh
 
           ./util/job_launching/run_simulations.py -B rodinia_2.0-ft,GPU_Microbenchmark -C QV100-PTX,RTX2060-PTX,RTX3070-PTX -N short-ptx-$GITHUB_RUN_NUMBER"_"$GITHUB_RUN_ATTEMPT
@@ -145,7 +145,7 @@ jobs:
           rm -rf ./gpu-simulator/gpgpu-sim
           source ./gpu-simulator/setup_environment.sh
           make clean -C gpu-simulator
-          make -j -C gpu-simulator
+          make -j20 -C gpu-simulator
       - name: test-prebuilt-traces
         run: |
           source ./env-setup/12.4_env_setup.sh
@@ -187,3 +187,23 @@ jobs:
           source ./gpu-simulator/setup_environment.sh
           ./util/job_launching/run_simulations.py -B rodinia_2.0-ft -C QV100-SASS -T ./hw_run/traces/device-7/ -N rodinia_2.0-ft-$$
           ./util/job_launching/monitor_func_test.py -I -v -s rodinia-stats-per-app.csv -N rodinia_2.0-ft-$$
+  format-code:
+    if: github.event_name == 'pull_request'
+    runs-on: tgrogers-raid
+    needs: [SASS-Simulation, PTX-Simulation, Tracer-Tool]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          ssh-key: ''
+
+      - name: Run clang-format
+        run: |
+          git config user.name "purdue-jenkins"
+          git config user.email "purdue-jenkins@users.noreply.github.com"
+          git remote set-url origin git@github.com:${{github.event.pull_request.head.repo.full_name}}
+          git remote -v
+          /bin/bash ./gpu-simulator/format-code.sh
+          /bin/bash ./util/tracer_nvbit/tracer_tool/format-code.sh
+          if git status --untracked-files=no | grep -q "nothing to commit"; then echo "No changes to commit."; else git commit -a -m "Automated Format"; git push; fi
