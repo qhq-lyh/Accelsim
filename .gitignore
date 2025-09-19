@@ -4,6 +4,7 @@ hw_run/
 sim_run_*
 *.DS_Store*
 *.csv
+*.ssh
 *.csv#
 4.2/
 gpucomputingsdk_4.2.9_linux.run
