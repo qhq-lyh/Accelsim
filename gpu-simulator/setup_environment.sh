@@ -65,8 +65,8 @@ export ACCELSIM_ROOT="$( cd "$( dirname "$SCRIPT_LOC" )" && pwd )"
 #   Different branches of Accel-Sim should have different values here
 #   For development, we use our internal repo and the dev branch
 #       Ideally, when we release, it should be based off a GPGPU-Sim release.
-export GPGPUSIM_REPO="${GPGPUSIM_REPO:=https://github.com/accel-sim/gpgpu-sim_distribution.git}"
-export GPGPUSIM_BRANCH="${GPGPUSIM_BRANCH:=dev}"
+export GPGPUSIM_REPO="${GPGPUSIM_REPO:=https://github.com/qhq-lyh/GPGPUsim.git}"
+export GPGPUSIM_BRANCH="${GPGPUSIM_BRANCH:=main}"
 
 # Help the user out by setting the default CUDA_INSTALL_PATH, if it is not already set
 if [ -z "$CUDA_INSTALL_PATH" ]; then
