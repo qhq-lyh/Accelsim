@@ -6,6 +6,7 @@ sim_run_*
 *.csv
 *.ssh
 *.csv#
+HotSpot/
 4.2/
 gpucomputingsdk_4.2.9_linux.run
 util/job_launching/*.txt
