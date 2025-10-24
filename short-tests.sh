@@ -10,7 +10,9 @@ fi
 #Make the simulator
 export PATH=$CUDA_INSTALL_PATH/bin:$PATH;
 source ./gpu-simulator/setup_environment.sh
-source ./setup_hotspot.sh
+./setup_hotspot.sh
+cd HotSpot && make
+cd ..
 make -j -C ./gpu-simulator
 
 #Get the pre-run trace files
