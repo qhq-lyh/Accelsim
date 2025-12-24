@@ -5,7 +5,7 @@ set -e
 ROOT_DIR="$(pwd)"
 
 SCRIPT_DIR="$ROOT_DIR/Lyhong_scripts"
-SIM_ROOT="$ROOT_DIR/sim_run_11.8/bfs-rodinia-2.0-ft"
+SIM_ROOT="$ROOT_DIR/sim_run_11.8/backprop-rodinia-2.0-ft"
 
 # === 2. 找到第一层唯一子目录 ===
 LEVEL1_DIR=$(find "$SIM_ROOT" -mindepth 1 -maxdepth 1 -type d | head -n 1)
