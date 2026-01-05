@@ -48,19 +48,16 @@ def smooth(data, window):
 with open(log_file, "r") as f:
     for line in f:
         line = line.strip()
-
         # num_idle_cores
         m = re.search(r"num_idle_cores:\s*([0-9.]+)", line)
         if m:
             idle_cores.append(float(m.group(1)))
-
         # rt_power.readOp.dynamic（单独处理，忽略尾注释）
         if line.startswith("rt_power.readOp.dynamic"):
             m = re.search(r":\s*([0-9.]+)", line)
             if m:
                 power_data["rt_power.readOp.dynamic"].append(float(m.group(1)))
             continue
-
         # 其余功耗项
         for key in power_keys:
             if key == "rt_power.readOp.dynamic":
