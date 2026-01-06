@@ -6,7 +6,7 @@ import glob
 NUM_SM = 80
 out_dir = "Core_Change_PNG"
 os.makedirs(out_dir, exist_ok=True)
-log_files = glob.glob("*.o[0-9][0-9]")
+log_files = glob.glob("*.o[0-9]*")
 
 if len(log_files) == 0:
     raise RuntimeError("No .oXX log file found in current directory.")
