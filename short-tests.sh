@@ -20,7 +20,7 @@ rm -rf ./hw_run/rodinia_2.0-ft
 wget https://engineering.purdue.edu/tgrogers/accel-sim/traces/tesla-v100/latest/rodinia_2.0-ft.tgz
 mkdir -p ./hw_run
 tar -xzvf rodinia_2.0-ft.tgz -C ./hw_run
-rm rodinia_2.0-ft.tgz
+trash rodinia_2.0-ft.tgz
 
 #Run the tests on the trace
 ./util/job_launching/run_simulations.py -C QV100-SASS -B rodinia_2.0-ft -T ./hw_run/rodinia_2.0-ft/9.1 -N Accelwattch_Test
@@ -37,7 +37,7 @@ rm rodinia_2.0-ft.tgz
 
 
 # Accelwattch(A Power Modeling Framework for Modern GPUs) tests
-./util/job_launching/run_simulations.py -B rodinia_2.0-ft -C QV100-Accelwattch_SASS_SIM -T ./hw_run/rodinia_2.0-ft/9.1 -N Accelwattch_Test
+./util/job_launching/run_simulations.py -B rodinia_2.0-ft -C QV100-Lyhong_SIM -T ./hw_run/rodinia_2.0-ft/9.1 -N Accelwattch_Test
 
 # Collect the stats
 ./util/job_launching/get_stats.py -N Accelwattch_Test | tee accelwattch-per-app-fromlaunch.csv
