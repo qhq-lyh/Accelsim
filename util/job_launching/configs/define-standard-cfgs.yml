@@ -189,6 +189,7 @@ Accelwattch_PTX_SIM:
 
 Lyhong_SIM:
     extra_params: "-power_simulation_enabled 1
+    \n-steady_power_levels_enabled 1
     \n-power_trace_enabled 1
     \n-power_per_cycle_dump 1
     \n-power_simulation_mode 0
