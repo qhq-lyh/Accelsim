@@ -53,7 +53,7 @@ Processor::Processor(ParseXML *XML_interface) {
 * CONSTP
 * STATICP
 
-从**gpgpu_sim_wrapper.cc**中的代码得到，*STATICP*和*IDLE_COREP*与电压是线性关系，应该是属于静态功耗。
+从**gpgpu_sim_wrapper.cc**中的代码得到，*STATICP*和*IDLE_COREP*与电压是线性关系，应该是属于静态功耗，虽然静态功耗 $P_{static​}∝V⋅e^{kV}$，但此处应该是做了一个近似。
 ```cpp
   if (g_dvfs_enabled) {
     double voltage_ratio =
@@ -75,6 +75,31 @@ Processor::Processor(ParseXML *XML_interface) {
 #### power stat相关文件层级关系：
     gpu-sim.cc -> power_interface.cc -> gpgpu_sim_wrapper.cc -> processor.cc -> core.cc
 
+#### Core Power的数量
+在**processor.cc**中的```Processor()```构造函数中，有
+```cpp
+  if (procdynp.homoCore)
+    numCore = procdynp.numCore == 0 ? 0 : 1;
+  else
+    numCore = procdynp.numCore;
+```
+通过 *cout* 发现 *procdynp.homoCore* 和 *procdynp.numCore* 的值都是1。并且在后续代码中有
+```cpp
+  for (i = 0; i < numCore; i++) {
+    cores.push_back(new Core(XML, i, &interface_ip));
+    cores[i]->computeEnergy();
+    cores[i]->computeEnergy(false);
+    if (procdynp.homoCore) {
+      core.area.set_area(core.area.get_area() +
+                         cores[i]->area.get_area() * procdynp.numCore);
+```
+发现他是将所有核心视作一个整体来计算的，最终```proc```中只有一个```core[0]```对象。通过
+```cpp
+core.area.set_area(core.area.get_area() +
+                   cores[i]->area.get_area() * procdynp.numCore
+```
+可以推测他并没有将```procdynp.numCore```默认为1。该参数可以在**accelwattch_sass_sim.xml**中通过添加```<param name="number_of_cores" value="1"/> <!-- SMs -->```改变。
+
 #### 其他 
 在**gpgpusim_wrapper.cc**中，*update_coefficients*函数被调用了，但是通过注释掉对比输出，发现并没有影响功耗计算结果（除STATICP外的power）。
 ```cpp
@@ -91,3 +116,8 @@ void gpgpu_sim_wrapper::update_components_power() {
 * *rt_power.readOp.dynamic*随核心数量变化
 * *IDLE_COREP*的值和空闲核心数量线性相关
 * *gpu_STATICP* 功能单元被激活并 *ready*，即使不发生大量切换，也要消耗的功率
+
+#### Question
+* 将**accelwattch_sass_sim.xml**中的num of cores改为2及以上时，试图创建多个core对象时，报错。
+  * 错误信息：```filter_data_arr1.  ERROR: no valid data array organizations found```
+  * 代码出错地：**core.cc**中的```  IB = new ArrayST(&interface_ip, "InstBuffer", Core_device, coredynp.opt_local, coredynp.core_ty);```
