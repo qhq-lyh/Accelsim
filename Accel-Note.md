@@ -73,7 +73,7 @@ Processor::Processor(ParseXML *XML_interface) {
 ```
 
 #### power stat相关文件层级关系：
-    gpu-sim.cc -> power_interface.cc -> gpgpu_sim_wrapper.cc -> processor.cc -> core.cc
+    accel-sim.cc -> trace_driven.h -> gpu-sim.cc -> power_interface.cc -> gpgpu_sim_wrapper.cc -> processor.cc -> core.cc
 
 #### Core Power的数量
 在**processor.cc**中的```Processor()```构造函数中，有
@@ -118,6 +118,11 @@ void gpgpu_sim_wrapper::update_components_power() {
 * *gpu_STATICP* 功能单元被激活并 *ready*，即使不发生大量切换，也要消耗的功率
 
 #### Question
-* 将**accelwattch_sass_sim.xml**中的num of cores改为2及以上时，试图创建多个core对象时，报错。
-  * 错误信息：```filter_data_arr1.  ERROR: no valid data array organizations found```
-  * 代码出错地：**core.cc**中的```  IB = new ArrayST(&interface_ip, "InstBuffer", Core_device, coredynp.opt_local, coredynp.core_ty);```
+创建的多个cores对象，相互之间独立，通过结果发现，从cores[0]的相应数据就是原来运行的总数据，cores[1]及更多，他们的计数器的值和cores[0]一模一样。除了execution_time。
+
+* 创建多个cores后会出现power和不龙的情况，也就是总power变了？  
+  * 原因在于通过累积的power只是cores[0]的power，而读取的总power是proc的总运行power加上其他变量得到的。所以多了几个cores对象的power。
+
+#### Think
+cores已经可以正确创建多个（从accelwattch_sass_sim.xml中修改），但cores是proc的一个public子类，仿真时是统一的计数器得到的值，然后直接赋值给cores[0]。目前应该可以较快的实现将计数器的值平均给每个活跃的cores对象，并且计算总值。  
+在gpu-sim.cc中虽然没有cores对象，但是他是有输出将kernel分给哪个sm的，能否从此处入手，将计数器也分为多份？
