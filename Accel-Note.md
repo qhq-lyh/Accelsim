@@ -17,6 +17,17 @@ Processor::Processor(ParseXML *XML_interface) {
     cores[i]->computeEnergy();
     cores[i]->computeEnergy(false);
 ``` 
+**计算过程**：
+检查发现，如```IB->rt_power.readOp.dynamic ```的计算中，```IB->local_result.power.readOp.dynamic```和```IB->rtp_stats.readAc.access```均为定值，```IB->rtp_stats.readAc.access```和```IB->rtp_stats.writeAc.access```在随cycle变化。
+而
+```cpp
+    IB->stats_t.readAc.access = IB->stats_t.writeAc.access =
+        XML->sys.core[ithCore].total_instructions;
+    IB->rtp_stats = IB->stats_t;
+```
+其中XML指向**accelwattch_sass_sim.xml**。发现文件中相应位置是：```<stat name="total_instructions" value="total_instructions_match_mcpat"/>```
+因此这个功耗是通过**core.cc**中的```sys.core[ithCore].total_instructions```进行修改的。通过*grep*发现，该参数在**gpgpu_sim_wrapper.cc**中的```set_inst_power()```函数中赋值：```p->sys.core[0].total_instructions = tot_inst * p->sys.scaling_coefficients[TOT_INST];```,其中```tot_inst```变量在**power_interface.cc**中通过```power_stats->get_total_inst(0)```获得。另一个参数是常量。
+
 
 #### dvfs
 在**gpu-sim.cc**中，有
