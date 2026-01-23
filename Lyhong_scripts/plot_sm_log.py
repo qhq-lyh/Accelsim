@@ -1,4 +1,5 @@
 import os
+import sys
 import matplotlib.pyplot as plt
 
 # ========= 配置 =========
@@ -7,7 +8,12 @@ out_dir = "PNG/SM"
 SMOOTH_WINDOW = 1
 # ========================
 
+if os.path.isdir(out_dir) and any(os.scandir(out_dir)):
+    print(f"[Skip] {out_dir} already exists and is not empty. Skip plotting.")
+    sys.exit(0)
+
 os.makedirs(out_dir, exist_ok=True)
+
 
 def smooth(data, window):
     if window <= 1 or len(data) < window:
