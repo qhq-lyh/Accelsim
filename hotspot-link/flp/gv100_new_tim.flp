@@ -1,0 +1,4 @@
+# GV100 TIM layer floorplan for gv100_new.flp
+# Line Format: <unit-name>	<width>	<height>	<left-x>	<bottom-y>
+# Covers the full gv100_new.flp bbox: 0.0272 m x 0.0200 m.
+GV100_TIM	0.02720000	0.02000000	0.00000000	0.00000000

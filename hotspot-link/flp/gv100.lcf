@@ -1,0 +1,34 @@
+# GV100 layer configuration for HotSpot grid/detailed_3D mode.
+# Reference files:
+#   - hotspot_with_model_extract/DDR_16core/cores.lcf for file format
+#   - GV100-hotspot.config for GV100 material parameters
+#   - /home/lyhong/Downloads/accel-sim-framework/hotspot-link/gv100_new.flp for the active silicon floorplan
+#
+# File Format:
+# <Layer Number>
+# <Lateral heat flow Y/N?>
+# <Power Dissipation Y/N?>
+# <Specific heat capacity in J/(m^3K)>
+# <Resistivity in (m-K)/W>
+# <Thickness in m>
+# <floorplan file>
+
+# Layer 0: GV100 active silicon layer.
+# p_chip=1.750063e6, k_chip=100.0 W/(m-K), resistivity=1/k=0.01, t_chip=0.000585.
+0
+Y
+Y
+1.750063e6
+0.01
+0.000585
+/home/lyhong/Downloads/accel-sim-framework/hotspot-link/gv100_new.flp
+
+# Layer 1: GV100 thermal interface material (TIM).
+# p_interface=1.802e6, k_interface=1.2 W/(m-K), resistivity=1/k=0.8333333333, t_interface=0.000135.
+1
+Y
+N
+1.802e6
+0.8333333333
+0.000135
+/home/lyhong/Downloads/accel-sim-framework/hotspot-link/gv100_new_tim.flp
