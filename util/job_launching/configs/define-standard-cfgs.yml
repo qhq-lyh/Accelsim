@@ -195,3 +195,19 @@ Lyhong_SIM:
     \n-power_simulation_mode 0
     \n-accelwattch_xml_file accelwattch_sass_sim.xml"
 
+
+# bfs + hotspot mixed benchmark: 50 SM total, bfs stream 1 gets 10 SMs, hotspot stream 2 gets 40 SMs.
+BFS10_HOTSPOT40:
+    extra_params: "-gpgpu_n_clusters 50
+    
+-gpgpu_n_cores_per_cluster 1
+    
+-gpgpu_concurrent_kernel_sm 1
+    
+-gpgpu_max_concurrent_kernel 2
+    
+-gpgpu_concurrent_stream_sm_count 1:10,2:40"
+
+# Optional debug-only config. Do not use for long formal runs unless you want CTA-to-SM logs.
+STREAM_SM_DEBUG:
+    extra_params: "-gpgpu_concurrent_stream_sm_debug 1"

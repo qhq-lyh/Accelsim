@@ -324,6 +324,18 @@ def parse_run_simulations_options():
         action="store_true",
         help="Enable passing hw_perf_bench_name for accelwattch hw and hybrid runs to config file.",
     )
+    parser.add_option(
+        "--stream-sm-count",
+        dest="stream_sm_count",
+        default="",
+        help="Initial dynamic stream SM allocation, e.g. 1:10,2:40 or 1:10,2:20,3:20.",
+    )
+    parser.add_option(
+        "--stream-sm-reload-interval",
+        dest="stream_sm_reload_interval",
+        default="1",
+        help="GPU cycles between simulator reloads of stream_sm_alloc.txt. Default is 1.",
+    )
 
     (options, args) = parser.parse_args()
     # Parser seems to leave some whitespace on the options, getting rid of it
@@ -337,6 +349,8 @@ def parse_run_simulations_options():
     options.run_directory = options.run_directory.strip()
     options.simulator_dir = options.simulator_dir.strip()
     options.launch_name = options.launch_name.strip()
+    options.stream_sm_count = options.stream_sm_count.strip()
+    options.stream_sm_reload_interval = options.stream_sm_reload_interval.strip()
     if options.job_mem != None:
         options.job_mem = options.job_mem.strip()
     return (options, args)

@@ -31,6 +31,7 @@
 
 
 from optparse import OptionParser
+import csv
 import os
 import subprocess
 from subprocess import Popen, PIPE
@@ -42,6 +43,7 @@ import glob
 import datetime
 import yaml
 import common
+import analyze_trace_features
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 # This function will pull the SO name out of the shared object,
@@ -135,6 +137,7 @@ class ConfigurationSpec:
                 self.append_gpgpusim_config(
                     benchmark, this_run_dir, appargs_run_subdir, self.config_file
                 )
+                self.apply_auto_stream_sm_allocation(benchmark, args, this_run_dir)
 
                 # Submit the job to torque and dump the output to a file
                 if not options.no_launch:
@@ -213,6 +216,179 @@ class ConfigurationSpec:
     #########################################################################################
     # Internal utility methods
     #########################################################################################
+    def get_stream_sm_count(self):
+        if options.stream_sm_count != "":
+            return options.stream_sm_count
+        match = re.search(r"(?:^|\n)\s*-gpgpu_concurrent_stream_sm_count\s+([^\n\s]+)", self.params)
+        if match:
+            return match.group(1).strip()
+        return ""
+
+    def get_ipc_lookup_benchmark_names(self):
+        root_dir = os.path.abspath(os.path.join(this_directory, "../.."))
+        ipc_lookup = os.path.join(root_dir, "IPC-sm", "ipc_lookup.csv")
+        names = set()
+        try:
+            with open(ipc_lookup, newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    benchmark = row.get("benchmark", "").strip().lower()
+                    if benchmark:
+                        names.add(re.sub(r"-k\d+$", "", benchmark))
+        except OSError:
+            pass
+        return names
+
+    def infer_mixed_stream_benchmarks(self, benchmark, args):
+        bench_prefix = benchmark.replace("_", "-")
+        bench_prefix = re.sub(r"-rodinia.*$", "", bench_prefix)
+        bench_names = [x.lower() for x in bench_prefix.split("-") if x]
+        if len(bench_names) >= 2:
+            return bench_names
+
+        known_benchmarks = self.get_ipc_lookup_benchmark_names()
+        arg_names = []
+        for part in re.split(r"[_\s,]+", str(args or "")):
+            match = re.match(r"^([A-Za-z]+)\d*$", part)
+            if match:
+                name = match.group(1).lower()
+                if name in known_benchmarks:
+                    arg_names.append(name)
+        if len(arg_names) >= 2:
+            return arg_names
+        return []
+
+    def should_use_stream_sm_config_file(self, benchmark, args):
+        return self.get_stream_sm_count() != "" or len(self.infer_mixed_stream_benchmarks(benchmark, args)) >= 2
+
+    def read_sm_allocation_csv(self, path):
+        allocation = {}
+        with open(path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                allocation[row["benchmark"].strip().lower()] = int(row["sm"])
+        return allocation
+
+    def read_sm_map_csv(self, path):
+        sm_map = {}
+        with open(path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                benchmark = row["benchmark"].strip().lower()
+                sm_ids = row["sm_ids"].strip().replace(",", " ").split()
+                sm_map[benchmark] = [int(sm_id) for sm_id in sm_ids]
+        return sm_map
+
+    def write_stream_sm_alloc(self, this_run_dir, stream_sm_count):
+        alloc_file = os.path.join(this_run_dir, "stream_sm_alloc.txt")
+        with open(alloc_file, "w") as f:
+            f.write(stream_sm_count + "\n")
+
+    def apply_auto_stream_sm_allocation(self, benchmark, args, this_run_dir):
+        if options.stream_sm_count != "":
+            return
+
+        mixed_benchmarks = self.infer_mixed_stream_benchmarks(benchmark, args)
+        if len(mixed_benchmarks) < 2:
+            return
+
+        root_dir = os.path.abspath(os.path.join(this_directory, "../.."))
+        script = os.path.join(root_dir, "scripts", "Alg1_compute_sm_allocation.py")
+        placement_script = os.path.join(root_dir, "scripts", "Alg2_compute_sm_placement.py")
+        out_dir = os.path.join(root_dir, "IPC-sm")
+        out_csv = os.path.join(out_dir, "sm_allocation.csv")
+        sm_map_csv = os.path.join(out_dir, "sm_map.csv")
+        config_path = os.path.join(this_run_dir, "gpgpusim.config")
+        cmd = [
+            sys.executable,
+            script,
+            "--config",
+            config_path,
+            "--out-csv",
+            out_csv,
+            "--benchmarks",
+            ",".join(mixed_benchmarks),
+        ]
+        print("Auto SM allocation for mixed benchmark {0}: {1}".format(benchmark, " ".join(cmd)))
+        subprocess.check_call(cmd)
+
+        allocation = self.read_sm_allocation_csv(out_csv)
+        missing = [b for b in mixed_benchmarks if b not in allocation]
+        if missing:
+            sys.exit(
+                "SM allocation CSV {0} missing benchmark(s): {1}".format(
+                    out_csv, ", ".join(missing)
+                )
+            )
+
+        placement_cmd = [
+            sys.executable,
+            placement_script,
+            "--allocation-csv",
+            out_csv,
+            "--out-dir",
+            out_dir,
+        ]
+        print("Auto SM placement for mixed benchmark {0}: {1}".format(benchmark, " ".join(placement_cmd)))
+        subprocess.check_call(placement_cmd)
+
+        sm_map = self.read_sm_map_csv(sm_map_csv)
+        missing = [b for b in mixed_benchmarks if b not in sm_map]
+        if missing:
+            sys.exit(
+                "SM map CSV {0} missing benchmark(s): {1}".format(
+                    sm_map_csv, ", ".join(missing)
+                )
+            )
+
+        stream_sm_count = ",".join(
+            "{0}:{1}".format(i + 1, "|".join(str(sm_id) for sm_id in sm_map[bench]))
+            for i, bench in enumerate(mixed_benchmarks)
+        )
+        self.write_stream_sm_alloc(this_run_dir, stream_sm_count)
+        print("Auto stream SM map for {0}: {1}".format(benchmark, stream_sm_count))
+
+
+    def pre_analyze_selected_trace(self, trace_root, this_run_dir, appargs_subdir):
+        benchmark = os.path.dirname(appargs_subdir)
+        args_name = os.path.basename(appargs_subdir)
+        out_prefix = os.path.join(this_run_dir, "trace_feature_summary")
+        rows, opcode_rows = analyze_trace_features.analyze_trace_root_by_component(
+            trace_root,
+            benchmark=benchmark,
+            app_args=args_name,
+        )
+        csv_path, json_path, opcode_path = analyze_trace_features.write_outputs(
+            rows,
+            opcode_rows,
+            out_prefix,
+        )
+        print(
+            "Trace features ready for {0}/{1}: {2}".format(
+                benchmark,
+                args_name,
+                csv_path,
+            )
+        )
+        root_dir = os.path.abspath(os.path.join(this_directory, "../.."))
+        opcode_script = os.path.join(root_dir, "scripts", "analyze_run_opcode_mix.py")
+        opcode_out_dir = os.path.join(root_dir, "IPC-sm", "opcode_analysis")
+        subprocess.check_call(
+            [
+                sys.executable,
+                opcode_script,
+                "--trace-root",
+                trace_root,
+                "--benchmark",
+                benchmark,
+                "--args-name",
+                args_name,
+                "--out-dir",
+                opcode_out_dir,
+            ]
+        )
+        return csv_path, json_path, opcode_path
+
     # copies and links the necessary files to the run directory
     def setup_run_directory(
         self, full_data_dir, this_run_dir, data_dir, appargs_subdir
@@ -279,12 +455,21 @@ class ConfigurationSpec:
                 if os.path.lexists(os.path.join(this_run_dir, "traces")):
                     os.remove(os.path.join(this_run_dir, "traces"))
                 os.symlink(benchmark_trace_dir, os.path.join(this_run_dir, "traces"))
+                self.pre_analyze_selected_trace(
+                    benchmark_trace_dir, this_run_dir, appargs_subdir
+                )
 
         all_data_link = os.path.join(this_run_dir, "data_dirs")
         if os.path.lexists(all_data_link):
             os.remove(all_data_link)
         if os.path.exists(os.path.join(this_directory, data_dir)):
             os.symlink(os.path.join(this_directory, data_dir), all_data_link)
+
+        stream_sm_count = self.get_stream_sm_count()
+        if stream_sm_count != "":
+            alloc_file = os.path.join(this_run_dir, "stream_sm_alloc.txt")
+            with open(alloc_file, "w") as f:
+                f.write(stream_sm_count + "\n")
 
     # replaces all the "REAPLCE_*" strings in the .sim file
     def text_replace_torque_sim(
@@ -403,6 +588,16 @@ class ConfigurationSpec:
 
         config_text = open(config_text_file).read()
         config_text += "\n" + benchmark_spec_opts + "\n" + self.params + "\n"
+
+        if self.should_use_stream_sm_config_file(bench_name, os.path.basename(appargs_run_subdir)):
+            if not re.search(r"(?:^|\n)\s*-gpgpu_concurrent_kernel_sm\b", config_text):
+                config_text += "\n-gpgpu_concurrent_kernel_sm 1\n"
+            config_text += (
+                "\n-gpgpu_concurrent_stream_sm_config_file ./stream_sm_alloc.txt"
+                + "\n-gpgpu_concurrent_stream_sm_reload_interval "
+                + options.stream_sm_reload_interval
+                + "\n"
+            )
 
         if options.accelwattch_HW:
             # if bench_name == "cutlass_perf_test":

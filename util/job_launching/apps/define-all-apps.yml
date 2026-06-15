@@ -9,6 +9,26 @@
 #       ...
 # If you have a bunch of random benchmarks in random places, then a "suite" can be just one benchmark
 
+# Mixed trace-driven benchmark: backprop on stream 1 + bfs on stream 2 + heartwall on stream 3.
+# The args string maps to hw_run/.../backprop-bfs-heartwall-rodinia-2.0-ft/backprop_bfs_heartwall/traces.
+rodinia_2.0-ft-backprop-bfs-heartwall:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: "$GPUAPPS_ROOT/data_dirs/cuda/rodinia/2.0-ft/"
+    execs:
+        - backprop-bfs-heartwall-rodinia-2.0-ft:
+            - args: backprop_bfs_heartwall
+              accel-sim-mem: 4G
+
+# Mixed trace-driven benchmark: bfs on stream 1 + hotspot on stream 2.
+# The args string maps to hw_run/.../bfs-hotspot-rodinia-2.0-ft/bfs10_hotspot40/traces.
+rodinia_2.0-ft-bfs-hotspot:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: "$GPUAPPS_ROOT/data_dirs/cuda/rodinia/2.0-ft/"
+    execs:
+        - bfs-hotspot-rodinia-2.0-ft:
+            - args: bfs10_hotspot40
+              accel-sim-mem: 4G
+
 # Rodinia 2.0 implemented with a pass/fail functional test
 rodinia_2.0-ft:
     exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"

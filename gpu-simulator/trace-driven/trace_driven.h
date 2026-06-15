@@ -165,9 +165,7 @@ class trace_shd_warp_t : public shd_warp_t {
 class trace_gpgpu_sim : public gpgpu_sim {
  public:
   trace_gpgpu_sim(const gpgpu_sim_config &config, gpgpu_context *ctx)
-      : gpgpu_sim(config, ctx) {
-    createSIMTCluster();
-  }
+      : gpgpu_sim(config, ctx) {}
 
   virtual void createSIMTCluster();
 };
