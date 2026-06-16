@@ -82,6 +82,18 @@ def plot_heatmap(grid_c, blocks, out: Path, title: str, annotate: bool):
 
     image = ax.imshow(grid_c, origin="lower", extent=extent, cmap="inferno", aspect="equal")
 
+    rows, cols = grid_c.shape
+    max_row, max_col = np.unravel_index(np.argmax(grid_c), grid_c.shape)
+    min_row, min_col = np.unravel_index(np.argmin(grid_c), grid_c.shape)
+
+    x_min_mm = xmin * 1000 + (min_col + 0.5) * (xmax - xmin) * 1000 / cols
+    y_min_mm = ymin * 1000 + (min_row + 0.5) * (ymax - ymin) * 1000 / rows
+    x_max_mm = xmin * 1000 + (max_col + 0.5) * (xmax - xmin) * 1000 / cols
+    y_max_mm = ymin * 1000 + (max_row + 0.5) * (ymax - ymin) * 1000 / rows
+
+    max_temp = grid_c[max_row, max_col]
+    min_temp = grid_c[min_row, min_col]
+
     for name, width, height, x, y in blocks:
         line_width = 0.22 if name.startswith("SM_") else 0.55
         ax.add_patch(
@@ -106,6 +118,35 @@ def plot_heatmap(grid_c, blocks, out: Path, title: str, annotate: bool):
                 color="white",
             )
 
+    ax.scatter([x_max_mm], [y_max_mm], marker="x", s=90, linewidths=2.2, color="cyan")
+    ax.scatter([x_min_mm], [y_min_mm], marker="o", s=70, facecolors="none", edgecolors="cyan", linewidths=2.0)
+
+    ax.annotate(
+        f"Max {max_temp:.2f} C\nGrid({max_row},{max_col})",
+        xy=(x_max_mm, y_max_mm),
+        xytext=(-8, 8),
+        textcoords="offset points",
+        ha="right",
+        va="bottom",
+        color="cyan",
+        fontsize=8,
+        weight="bold",
+        bbox=dict(boxstyle="round,pad=0.25", fc="black", ec="cyan", alpha=0.65),
+    )
+
+    ax.annotate(
+        f"Min {min_temp:.2f} C\nGrid({min_row},{min_col})",
+        xy=(x_min_mm, y_min_mm),
+        xytext=(-8, -24),
+        textcoords="offset points",
+        ha="right",
+        va="top",
+        color="cyan",
+        fontsize=8,
+        weight="bold",
+        bbox=dict(boxstyle="round,pad=0.25", fc="black", ec="cyan", alpha=0.65),
+    )
+
     ax.set_title(title)
     ax.set_xlabel("x (mm)")
     ax.set_ylabel("y (mm)")
@@ -115,7 +156,6 @@ def plot_heatmap(grid_c, blocks, out: Path, title: str, annotate: bool):
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=300)
     plt.close(fig)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Plot a GV100 HotSpot grid steady heatmap in Celsius.")

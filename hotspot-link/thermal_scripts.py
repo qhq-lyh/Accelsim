@@ -1,74 +1,52 @@
-#!/usr/bin/env python
-import os
-import sys
+#!/usr/bin/env python3
+from pathlib import Path
 import subprocess
+import sys
 
-# num_shaders = 80
-# interval_s = 1e-9       # time interval in seconds
-num_shaders = int(sys.argv[1])
-interval_s = float(sys.argv[2])
-power_values = [float(x) for x in sys.argv[3:]]
-assert len(power_values) == num_shaders, "Error: number of power values must match num_shaders."
+base_dir = Path(__file__).resolve().parent
 
-base_dir = os.path.dirname(__file__)
-hotspot_dir = base_dir[:base_dir.rfind("/")]
-hotspot_dir = os.path.join(hotspot_dir, "HotSpot")
-hotspot_binary = os.path.join(hotspot_dir, "hotspot")
-floorplan = os.path.join(base_dir, "4090.flp")
+hotspot_bin = (
+    base_dir.parent
+    / "hotspot-link"
+    / "hotspot"
+)
 
-# Init delete primary file
-powerLogFile = os.path.join(base_dir, "PeriodicPower.log")
-powerInstantaneousFile = os.path.join(base_dir, "InstantaneousPower.log")
-thermalLogFile = os.path.join(base_dir, "PeriodicThermal.log")
-temperatureInitFile = os.path.join(base_dir, "Temperature.init")
-instantaneousTemperatureFile = os.path.join(base_dir, "InstantaneousTemperature.log")
-first_run = not os.path.exists(powerLogFile)
-if first_run:
-    for file in [powerLogFile, powerInstantaneousFile, thermalLogFile, instantaneousTemperatureFile, temperatureInitFile]:
-        if os.path.exists(file):
-            os.remove(file)
+config = base_dir / "GV100-hotspot.config"
+ptrace = base_dir / "GV100_example_100.ptrace"
+lcf = base_dir / "flp/gv100.lcf"
+out_dir = base_dir / "output"
+steady_file = out_dir / "temp.steady"
+grid_steady_file = out_dir / "temp.grid.steady"
+plot_script = base_dir / "plot_gv100_grid_heatmap.py"
+heatmap_png = out_dir / "gv100_grid_heatmap_celsius.png"
 
-# establish log files
-powerLogFileName = open(os.path.join(base_dir,"PeriodicPower.log"), 'a')
-powerInstantaneousFileName = open(os.path.join(base_dir,"InstantaneousPower.log"), 'w')
-thermalLogFileName = open(os.path.join(base_dir,"PeriodicThermal.log"), 'a')
+out_dir.mkdir(parents=True, exist_ok=True)
 
-# write the headings
-Headings = ""
-for i_cycle in range(num_shaders):
-    Headings += "SM_"+str(i_cycle)+"\t"
-Initial_flag = os.stat(os.path.join(base_dir,"PeriodicPower.log")).st_size == 0
-if Initial_flag:
-    powerLogFileName.write(Headings + "\n")
-    thermalLogFileName.write(Headings + "\n")
-powerInstantaneousFileName.write(Headings + "\n")
+cmd = [
+    str(hotspot_bin),
+    "-c", str(config.relative_to(base_dir)),
+    "-p", str(ptrace.relative_to(base_dir)),
+    "-grid_layer_file", str(lcf.relative_to(base_dir)),
+    "-model_type", "grid",
+    "-steady_file", str(steady_file.relative_to(base_dir)),
+    "-grid_steady_file", str(grid_steady_file.relative_to(base_dir)),
+]
 
-# write the power
-Readings = ""
-for i_cycle in range(num_shaders):
-    # Readings += str(12) +"\t"
-    Readings += str(power_values[i_cycle]) + "\t"
-powerInstantaneousFileName.write (Readings+"\n")
-powerInstantaneousFileName.close ()
-powerLogFileName.write (Readings+"\n")
-powerLogFileName.close()
+print("Running HotSpot:")
+print(" ".join(cmd))
 
-# hotspot command
-hotspot_args = ['-c', os.path.join(base_dir, "hotspot.config"),
-                '-f', floorplan,
-                '-sampling_intvl', str(interval_s),
-                '-p', os.path.join(base_dir, "InstantaneousPower.log"),
-                '-o', os.path.join(base_dir, "InstantaneousTemperature.log")]
-if not Initial_flag:
-    hotspot_args += ['-init_file', os.path.join(base_dir, "Temperature.init")]
+subprocess.run(cmd, cwd=base_dir, check=True)
 
-# call hotspot
-temperatures = subprocess.check_output([hotspot_binary] + hotspot_args)
+plot_cmd = [
+    sys.executable,
+    str(plot_script.relative_to(base_dir)),
+    "--grid-steady", str(grid_steady_file.relative_to(base_dir)),
+    "--out", str(heatmap_png.relative_to(base_dir)),
+]
 
-# write the temperature
-with open(os.path.join(base_dir, "Temperature.init"), 'w') as f:
-    f.write(temperatures.decode('utf-8'))
-with open(os.path.join(base_dir, "InstantaneousTemperature.log"), 'r') as instTemperatureFile:
-    instTemperatureFile.readline()
-    thermalLogFileName.write(instTemperatureFile.readline())
-thermalLogFileName.close()
+print("Plotting heatmap:")
+print(" ".join(plot_cmd))
+
+subprocess.run(plot_cmd, cwd=base_dir, check=True)
+
+print(f"Done. Heatmap saved to: {heatmap_png}")
