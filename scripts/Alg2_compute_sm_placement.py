@@ -30,7 +30,7 @@ from pathlib import Path
 
 ROOT = Path("/home/lyhong/Downloads/Accel-Hotsim")
 DEFAULT_ALLOCATION_CSV = ROOT / "IPC-sm" / "sm_allocation.csv"
-DEFAULT_FLP = ROOT / "hotspot-link" / "GV100.flp"
+DEFAULT_FLP = ROOT / "hotspot-link" / "flp" / "gv100_new.flp"
 DEFAULT_OUT_DIR = ROOT / "IPC-sm"
 SM_RE = re.compile(r"^SM_(\d+)$")
 
