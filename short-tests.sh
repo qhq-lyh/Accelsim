@@ -38,13 +38,11 @@ trash rodinia_2.0-ft.tgz
 
 # Accelwattch(A Power Modeling Framework for Modern GPUs) tests
 ./util/job_launching/run_simulations.py -B rodinia_2.0-ft -C QV100-Lyhong_SIM -T ./hw_run/rodinia_2.0-ft/9.1 -N Accelwattch_Test
+./util/job_launching/run_simulations.py -B rodinia_2.0-ft-backprop-bfs-heartwall -C QV100-Lyhong_SIM -T ./hw_run/rodinia_2.0-ft/9.1 -N Accelwattch_Test
 
 # Collect the stats
 ./util/job_launching/get_stats.py -N Accelwattch_Test | tee accelwattch-per-app-fromlaunch.csv
 ./util/job_launching/get_stats.py -K -k -N Accelwattch_Test | tee accelwattch-per-kernel-instance.csv
-
-# Accelwattch HW tests
-./util/job_launching/run_simulations.py -B rodinia_2.0-ft -a -C QV100-Accelwattch_SASS_HW -T ./hw_run/rodinia_2.0-ft/9.1 -N AccelwattchHW_Test # require corresponding hw_perf.csv
 
 # run your own traces on your device
 ./util/tracer_nvbit/install_nvbit.sh

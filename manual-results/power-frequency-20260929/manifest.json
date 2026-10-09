@@ -1,0 +1,42 @@
+{
+  "trace": "/home/lyhong/Downloads/Accel-Hotsim/hw_run/rodinia_2.0-ft/9.1/backprop-bfs-heartwall-rodinia-2.0-ft/backprop_bfs_heartwall/traces",
+  "dram_mhz": 850,
+  "sampling_cycles": 500,
+  "note": "three clocks equal; all other run files fixed; historical physical SM mapping",
+  "binary_sha256": "a64d2f4e11abd8c679a2224149a3e1755582adde2034323cf1d8ffa8d3f4e39a",
+  "input_sha256": {
+    "trace.config": "19dd14b3a4b6c1a1cb2833bd091f0dbd485ad79336ef7d4b0c9db1f7c46f504e",
+    "stream_sm_alloc.txt": "af04a7a5a7a27f5e9ec9671cd83c187b090e0fb173acc34e6220e4f7655e257f",
+    "accelwattch_ptx_sim_alt.xml": "cb02495fbabea2cf16d1d92c82fcb20e3b3db2001454fd0848d4e751126be712",
+    "accelwattch_sass_sim_alt.xml": "b1697af1df8fc9ee532fdcaee56bfffd87588c7cce702ed97ad22c9d83ab8c13",
+    "power.config": "dc6bb071d83928b738510f8438a22ca4c92ac6a7c5ca3632ffb54727e815ad2a",
+    "config_volta_islip.icnt": "c9b1f4d6039c08401c38bcd0e0a16f6fa98e3af61d493c17b748d5bcd2ca3684",
+    "gpgpusim.config": "2f709ec4277c919d9b70c492ce7d6f0f723c4700bc5b22999d4dd2fe85370ad9",
+    "accelwattch_ptx_sim.xml": "48a4dd2b51fd58aefee4b4dc330851cb22f3f6f80696fc2b07acfc9db8e60533",
+    "accelwattch_sass_hybrid.xml": "2c1fdc945ffb2b367691f2a6430c001b64d8cfe090eb4d23f23ddda60bae56fd",
+    "accelwattch_sass_sim.xml": "77d8fae26f6a2b292448d6a64458a96403ffa8c41b83c20b3874ddf926e353af",
+    "accelwattch_sass_hw.xml": "38f5ef2585bc414db7cda1c0d40604f772d382d3287d50973466305a592e8227"
+  },
+  "trace_sha256": {
+    "kernel-backprop-2.traceg": "eff1eaf4c92e4fe74c7720f554752065830ec3534679fbd38375d658f6fbfbd5",
+    "kernel-bfs-15.traceg": "83666bd4d1cda62dd48ed22f8fa0de4906a001708ff6a7243bafcfef72524edc",
+    "kernel-bfs-3.traceg": "a1193afc1efcd73e132963ee8b0e4010147d9261b93ea8da05bdf6a0bfcef6fd",
+    "kernel-bfs-4.traceg": "8e60767cf99e125d02a9a11080d26405f5eed3f05b1bc390f6ab4c30e6732a44",
+    "kernel-bfs-7.traceg": "4729413c43b5cacac27189a4659002608b6fdc8bc4ef126e42170e7d8a697584",
+    "kernel-bfs-12.traceg": "9691025f72bbb0a9caf0240e4e89dde36404bdfe67d338263a02588aba485c90",
+    "kernel-bfs-2.traceg": "951c6f62f3640d590be06a6a61d763a29f989158f10f168c74799b09574adeba",
+    "kernel-heartwall-1.traceg": "36d2ef3f4c22c6081762323b687b828662fa60a4d6d0923c27f6bb4ad677208b",
+    "kernel-bfs-5.traceg": "8a47cb269fd9be36d64b880254fc57626e341621d125a8f7c03758ea60e1fa3b",
+    "kernel-bfs-14.traceg": "442a5b35d4bc23a447023ba1af02e3ae94dd9589b7ba4da54f68e7cb542401b4",
+    "kernel-bfs-11.traceg": "55b6caa7811b9a24c6939c6cf68e126c1ed51b06e1298e7a22b2e74ea1d7dedb",
+    "kernel-bfs-10.traceg": "65f5fd841cbd4217b3df2b5cbb00c1f34d1c86fc36d41e07d70ae4c23f372d0e",
+    "kernel-bfs-6.traceg": "6ace1cc98fa0bbb0e4883f9ba7bd5801f4d94252247d5e6b941884fa2cc766df",
+    "kernelslist.g": "9ce2fdd01f1e31c17a287e21d73bfe9a25313e2eb0f9578409a5e0d0eb110187",
+    "kernel-bfs-16.traceg": "711c0e94d59be2dfd813eb973a228fec0614f20b1ce57f10bb25c18309f95dbf",
+    "kernel-bfs-9.traceg": "9bb049e1d0c5b35165e5e3af7885b35fbeca0cb0743f732f600a870a2f8680ee",
+    "kernel-backprop-1.traceg": "19ceacafd0bc1a5459d94706fa530e6b6c614f4827e483e63ca7810e029bff6f",
+    "kernel-bfs-1.traceg": "76156f40c091808bee0fcfe3029313c2d9437d8dde7a3be81fb7e96b5fb6d3c3",
+    "kernel-bfs-8.traceg": "a188573d55943e05fe3b3d5e52f6457f35b1c1a22a2d8524e7bcdbcda966276b",
+    "kernel-bfs-13.traceg": "816df5519006c2f8a656d17aec81a4ca0c3245da14e52ed7c37a291776e4b3bb"
+  }
+}

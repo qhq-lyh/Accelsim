@@ -1,0 +1,7 @@
+{
+  "cycles": 29736,
+  "instructions": 10888254,
+  "samples": 59,
+  "frequency_mhz": 800,
+  "benchmark": "srad_v2"
+}

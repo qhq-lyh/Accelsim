@@ -1,0 +1,6 @@
+Function "gpgpu_sim_wrapper::update_components_power" not defined.
+Breakpoint 1 (gpgpu_sim_wrapper::update_components_power) pending.
+warning: Could not trace the inferior process.
+warning: ptrace: 不允许的操作
+/tmp/accel-sm-anomaly.gdb:6: Error in sourced command file:
+During startup program exited with code 127.

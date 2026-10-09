@@ -1,0 +1,7 @@
+{
+  "cycles": 15594,
+  "instructions": 10473824,
+  "samples": 31,
+  "frequency_mhz": 2200.0,
+  "benchmark": "backprop"
+}

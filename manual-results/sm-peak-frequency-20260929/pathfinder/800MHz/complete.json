@@ -1,0 +1,7 @@
+{
+  "cycles": 31036,
+  "instructions": 1059640,
+  "samples": 62,
+  "frequency_mhz": 800,
+  "benchmark": "pathfinder"
+}

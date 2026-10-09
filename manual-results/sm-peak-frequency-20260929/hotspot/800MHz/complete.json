@@ -1,0 +1,7 @@
+{
+  "cycles": 54459,
+  "instructions": 33950092,
+  "samples": 108,
+  "frequency_mhz": 800.0,
+  "benchmark": "hotspot"
+}

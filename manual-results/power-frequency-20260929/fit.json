@@ -1,0 +1,197 @@
+{
+  "frequency_unit": "GHz",
+  "power_unit": "W",
+  "validation_frequencies_mhz": [
+    1400,
+    2800
+  ],
+  "scope": "backprop+bfs+heartwall; fixed trace/physical SM map; Core=ICNT=L2=f, DRAM=850 MHz; sampled mean power, 500-core-cycle windows",
+  "outputs": {
+    "Total_GPU_Power": {
+      "selected_model": "quadratic",
+      "all_sample_coefficients": [
+        56.39661588577535,
+        7.081332217132017,
+        -0.23045283647023196
+      ],
+      "all_sample_max_abs_error_w": 0.0796050946354967,
+      "all_sample_max_relative_error": 0.0012840816108442904,
+      "candidates": [
+        {
+          "name": "affine",
+          "parameter_count": 2,
+          "training_coefficients": [
+            57.44385151812538,
+            5.958545388371751
+          ],
+          "validation_max_relative_error": 0.004696823255914531,
+          "validation_rmse_w": 0.24749485566701065,
+          "training_loo_max_relative_error": 0.007587277940364712,
+          "validation_predictions_w": [
+            65.78581506184582,
+            74.12777860556628
+          ]
+        },
+        {
+          "name": "quadratic",
+          "parameter_count": 3,
+          "training_coefficients": [
+            56.46179224992288,
+            7.025472444693333,
+            -0.2210701100832592
+          ],
+          "validation_max_relative_error": 0.0010427463903038647,
+          "validation_rmse_w": 0.07226701729182301,
+          "training_loo_max_relative_error": 0.002681959966963964,
+          "validation_predictions_w": [
+            65.86415625673035,
+            74.39992543201146
+          ]
+        },
+        {
+          "name": "saturating",
+          "parameter_count": 3,
+          "training_coefficients": [
+            56.399789779799605,
+            7.142963557403582,
+            0.03994665352246402
+          ],
+          "validation_max_relative_error": 0.0012017190678991613,
+          "validation_rmse_w": 0.08147995209902341,
+          "training_loo_max_relative_error": 0.003089795568078022,
+          "validation_predictions_w": [
+            65.87029762628893,
+            74.38808553063822
+          ]
+        },
+        {
+          "name": "offset_cubic",
+          "parameter_count": 2,
+          "training_coefficients": [
+            65.01000568671657,
+            0.27687351335976973
+          ],
+          "validation_max_relative_error": 0.04551239864749153,
+          "validation_rmse_w": 2.39692867417701,
+          "training_loo_max_relative_error": 0.08243712124639146,
+          "validation_predictions_w": [
+            65.76974660737578,
+            71.08793305199023
+          ]
+        }
+      ],
+      "observed_power_w": [
+        61.99379693877551,
+        64.07049494949496,
+        65.79772,
+        67.71729603960397,
+        70.89244563106796,
+        74.47758666666667,
+        77.78395140186916,
+        81.01284545454546
+      ]
+    },
+    "mapped_power_w": {
+      "selected_model": "quadratic",
+      "all_sample_coefficients": [
+        19.714984887312728,
+        6.721746764607573,
+        -0.24992053380700358
+      ],
+      "all_sample_max_abs_error_w": 0.08157704671932464,
+      "all_sample_max_relative_error": 0.0032612542352770534,
+      "candidates": [
+        {
+          "name": "affine",
+          "parameter_count": 2,
+          "training_coefficients": [
+            20.8535618931568,
+            5.504660187880733
+          ],
+          "validation_max_relative_error": 0.009767356332597153,
+          "validation_rmse_w": 0.25295218808695713,
+          "training_loo_max_relative_error": 0.0165539232177817,
+          "validation_predictions_w": [
+            28.560086156189826,
+            36.26661041922285
+          ]
+        },
+        {
+          "name": "quadratic",
+          "parameter_count": 3,
+          "training_coefficients": [
+            19.76955377158056,
+            6.682346333340056,
+            -0.24401968651711314
+          ],
+          "validation_max_relative_error": 0.0029581207763688406,
+          "validation_rmse_w": 0.07219636261002742,
+          "training_loo_max_relative_error": 0.006852160115614064,
+          "validation_predictions_w": [
+            28.6465600526831,
+            36.567009162638556
+          ]
+        },
+        {
+          "name": "saturating",
+          "parameter_count": 3,
+          "training_coefficients": [
+            19.681533553460437,
+            6.846374244844336,
+            0.04866367490609834
+          ],
+          "validation_max_relative_error": 0.0032569886339418467,
+          "validation_rmse_w": 0.08308061305814131,
+          "training_loo_max_relative_error": 0.00836047414055334,
+          "validation_predictions_w": [
+            28.65509633735185,
+            36.552563722137975
+          ]
+        },
+        {
+          "name": "offset_cubic",
+          "parameter_count": 2,
+          "training_coefficients": [
+            27.852417855704033,
+            0.2553332804596967
+          ],
+          "validation_max_relative_error": 0.08646817612092254,
+          "validation_rmse_w": 2.239302625938846,
+          "training_loo_max_relative_error": 0.16522484767555348,
+          "validation_predictions_w": [
+            28.55305237728544,
+            33.45749402835529
+          ]
+        }
+      ],
+      "observed_power_w": [
+        25.01401020408163,
+        26.94029292929293,
+        28.56207,
+        30.406316831683167,
+        33.334087378640774,
+        36.62433333333333,
+        39.63465420560747,
+        42.59664545454545
+      ]
+    }
+  },
+  "frequencies_mhz": [
+    800.0,
+    1132.0,
+    1400.0,
+    1698.0,
+    2200.0,
+    2800.0,
+    3396.0,
+    4000.0
+  ],
+  "spatial_quadratic_validation": {
+    "power_vector_relative_l2_errors": [
+      0.0041658412220896175,
+      0.015248966975286916
+    ],
+    "min_predicted_block_power_in_range_w": 0.21232853453653375,
+    "note": "83 per-block quadratic fits; do not replace their spatial vector with GPU total"
+  }
+}

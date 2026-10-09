@@ -1,0 +1,59 @@
+{
+  "model": "P=P0+k*(f/3396.0)^3.0",
+  "exponent": 3.0,
+  "scale": "all",
+  "fit_offset": true,
+  "G_shape": [
+    16396,
+    16396
+  ],
+  "B_shape": [
+    16396,
+    83
+  ],
+  "L_shape": [
+    86,
+    16396
+  ],
+  "C_used": false,
+  "ambient_c": 45.0,
+  "threshold_c": 80.0,
+  "reference_mhz": 3396.0,
+  "reconstructed_reference_peak_c": 58.052993875117046,
+  "raw_threshold_frequency_mhz": 6150.389749076668,
+  "selected_frequency_mhz": 6150.389749076668,
+  "threshold_reachable_within_bound": true,
+  "predicted_selected_peak_c": 80.0,
+  "binding_grid_index": 0,
+  "binding_grid_row": 0,
+  "binding_grid_col": 0,
+  "mapped_predicted_watts": 99.60178532635885,
+  "simulator_core_freq_uint32_compatible": false,
+  "calibration": [
+    {
+      "freq_mhz": 1132.0,
+      "observed_mapped_watts": 26.940292929292976,
+      "fitted_mapped_watts": 28.08302073293172,
+      "observed_peak_c": 54.157663876932844,
+      "fitted_peak_c": 54.50760825359458,
+      "power_vector_relative_l2_error": 0.0647034032387648
+    },
+    {
+      "freq_mhz": 1698.0,
+      "observed_mapped_watts": 30.406316831683224,
+      "fitted_mapped_watts": 29.148711629795088,
+      "observed_peak_c": 55.22146557624279,
+      "fitted_peak_c": 54.834598564711484,
+      "power_vector_relative_l2_error": 0.061413185757160094
+    },
+    {
+      "freq_mhz": 3396.0,
+      "observed_mapped_watts": 39.634654205607546,
+      "fitted_mapped_watts": 39.74953160385694,
+      "observed_peak_c": 58.052993875117046,
+      "fitted_peak_c": 58.08834662532473,
+      "power_vector_relative_l2_error": 0.003976757067169849
+    }
+  ],
+  "warning": "Exact inverse within the assumed power model only. Unmapped GPU power is excluded; rerun Accel-Sim to verify."
+}

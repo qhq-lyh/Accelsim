@@ -1,0 +1,7 @@
+{
+  "cycles": 1175316,
+  "instructions": 20365977,
+  "samples": 2350,
+  "frequency_mhz": 2200.0,
+  "benchmark": "streamcluster"
+}

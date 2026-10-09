@@ -1,0 +1,7 @@
+{
+  "cycles": 30893,
+  "instructions": 6714538,
+  "samples": 61,
+  "frequency_mhz": 2800,
+  "benchmark": "nn"
+}
