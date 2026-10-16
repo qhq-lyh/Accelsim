@@ -1,7 +1,0 @@
-{
-  "cycles": 703611,
-  "instructions": 7980928,
-  "samples": 1407,
-  "frequency_mhz": 1400.0,
-  "benchmark": "kmeans"
-}

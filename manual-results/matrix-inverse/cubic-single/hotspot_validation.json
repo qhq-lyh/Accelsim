@@ -1,6 +1,0 @@
-{
-  "hotspot_peak_c": 80.0,
-  "matrix_peak_c": 80.0,
-  "absolute_error_c": 0.0,
-  "validation": "HotSpot rerun with predicted power only, not a new Accel-Sim run"
-}

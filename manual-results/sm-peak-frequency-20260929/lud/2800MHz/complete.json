@@ -1,7 +1,0 @@
-{
-  "cycles": 128338,
-  "instructions": 418884,
-  "samples": 256,
-  "frequency_mhz": 2800.0,
-  "benchmark": "lud"
-}

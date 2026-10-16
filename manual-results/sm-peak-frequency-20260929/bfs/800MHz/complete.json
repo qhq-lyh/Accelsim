@@ -1,7 +1,0 @@
-{
-  "cycles": 121597,
-  "instructions": 1210998,
-  "samples": 243,
-  "frequency_mhz": 800.0,
-  "benchmark": "bfs"
-}

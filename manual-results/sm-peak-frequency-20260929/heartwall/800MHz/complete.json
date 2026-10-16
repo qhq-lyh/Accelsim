@@ -1,7 +1,0 @@
-{
-  "cycles": 9024,
-  "instructions": 7329465,
-  "samples": 18,
-  "frequency_mhz": 800.0,
-  "benchmark": "heartwall"
-}
