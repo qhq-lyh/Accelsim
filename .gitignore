@@ -20,3 +20,5 @@ manual-workflow/
 manual-results/
 scripts/__pycache__/
 scripts/models/qv100_activity_power.json
+.venv/
+.local/

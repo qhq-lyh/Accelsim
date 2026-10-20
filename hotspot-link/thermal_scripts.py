@@ -32,6 +32,14 @@ from Alg3_compute_safe_frequency import (DEFAULT_GCB, DEFAULT_MODEL, GridModel,
     PowerWindows, config_values, dump_json, floorplan, sha256, solve_frequency, write_ptrace)
 from Alg1_compute_sm_allocation import DEFAULT_IPC_CSV
 
+# Prefer the historical toolchain, or the sole library built in this checkout.
+# Multiple installed toolchains require an explicit --library choice.
+DEFAULT_LIBRARY = ROOT/'gpu-simulator/gpgpu-sim/lib/gcc-13.3.0/cuda-12080/release/libcudart.so'
+if not DEFAULT_LIBRARY.is_file():
+    libraries = sorted((ROOT/'gpu-simulator/gpgpu-sim/lib').glob('*/cuda-*/release/libcudart.so'))
+    if len(libraries) == 1:
+        DEFAULT_LIBRARY = libraries[0]
+
 
 def run_hotspot(args, names, power, directory, plot=True):
     directory.mkdir(parents=True,exist_ok=True)
@@ -43,8 +51,12 @@ def run_hotspot(args, names, power, directory, plot=True):
              '-grid_layer_file',str(args.lcf),'-model_type','grid','-detailed_3D','on',
              '-steady_file',str(directory/'temp.steady'),
              '-grid_steady_file',str(directory/'temp.grid.steady')]
+    env = os.environ.copy()
+    local_lib = ROOT/'.local/lib'
+    if local_lib.is_dir():
+        env['LD_LIBRARY_PATH'] = str(local_lib) + os.pathsep + env.get('LD_LIBRARY_PATH', '')
     with (directory/'hotspot.log').open('w') as log:
-        subprocess.run(command,cwd=directory,stdout=log,stderr=subprocess.STDOUT,check=True)
+        subprocess.run(command,cwd=directory,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
     grid=np.loadtxt(directory/'temp.grid.steady',ndmin=2)
     if grid.shape[1]!=2 or not np.isfinite(grid).all():
         raise ValueError('Invalid HotSpot grid result')
@@ -293,7 +305,8 @@ def main():
     p.add_argument('--thermal-config',type=Path,default=BASE/'GV100-hotspot.config')
     p.add_argument('--hotspot-bin',type=Path,default=BASE/'hotspot')
     p.add_argument('--accel-sim',type=Path,default=ROOT/'gpu-simulator/bin/release/accel-sim.out')
-    p.add_argument('--library',type=Path,default=ROOT/'gpu-simulator/gpgpu-sim/lib/gcc-13.3.0/cuda-12080/release/libcudart.so')
+    p.add_argument('--library',type=Path,default=DEFAULT_LIBRARY,
+                   help='Simulator libcudart.so; defaults to the historical path or sole local release build')
     p.add_argument('--threshold-c',type=float,default=90.)
     p.add_argument('--frequency-step-mhz',type=float,default=1.)
     p.add_argument('--minimum-frequency-mhz',type=float,default=100.)
