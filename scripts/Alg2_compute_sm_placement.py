@@ -28,7 +28,7 @@ from collections import defaultdict
 from pathlib import Path
 
 
-ROOT = Path("/home/lyhong/Downloads/Accel-Hotsim")
+ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ALLOCATION_CSV = ROOT / "IPC-sm" / "sm_allocation.csv"
 DEFAULT_FLP = ROOT / "hotspot-link" / "flp" / "gv100_new.flp"
 DEFAULT_OUT_DIR = ROOT / "IPC-sm"

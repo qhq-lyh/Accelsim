@@ -4,7 +4,8 @@
 # 计算多 benchmark 同时仿真时的 SM 分配方案。
 #
 # 默认输入：
-#   1. IPC-sm/ipc_lookup.csv，包含 benchmark,sm,ipc,sample_count 等列；
+#   1. IPC-sm/ipc_lookup.csv；缺失时使用 scripts/models/qv100_ipc_lookup.json。
+#      均包含 benchmark,sm,ipc,sample_count 等字段，参考曲线适用于对应输入规模。
 #   2. SM7_QV100/gpgpusim.config，从 -gpgpu_n_clusters 读取总 SM 数。
 #
 # 默认输出：
@@ -16,18 +17,20 @@
 #   ./scripts/Alg1_compute_sm_allocation.py --total-sm 80 --alpha 0.5 --out-csv /tmp/sm_allocation.csv
 import argparse
 import csv
+import json
 import math
 import re
 from collections import defaultdict
 from pathlib import Path
 
 
-DEFAULT_IPC_CSV = "/home/lyhong/Downloads/Accel-Hotsim/IPC-sm/ipc_lookup.csv"
-DEFAULT_CONFIG = (
-    "/home/lyhong/Downloads/Accel-Hotsim/gpu-simulator/gpgpu-sim/configs/"
-    "tested-cfgs/SM7_QV100/gpgpusim.config"
-)
-DEFAULT_OUT_CSV = "/home/lyhong/Downloads/Accel-Hotsim/IPC-sm/sm_allocation.csv"
+ROOT = Path(__file__).resolve().parents[1]
+# 优先使用用户已有 CSV；干净 checkout 则使用随算法提供的参考 IPC 曲线。
+DEFAULT_IPC_CSV = ROOT/'IPC-sm/ipc_lookup.csv'
+if not DEFAULT_IPC_CSV.is_file():
+    DEFAULT_IPC_CSV = ROOT/'scripts/models/qv100_ipc_lookup.json'
+DEFAULT_CONFIG = ROOT/'gpu-simulator/gpgpu-sim/configs/tested-cfgs/SM7_QV100/gpgpusim.config'
+DEFAULT_OUT_CSV = ROOT/'IPC-sm/sm_allocation.csv'
 CLUSTER_RE = re.compile(r"^\s*-gpgpu_n_clusters\s+(\d+)\b")
 
 
@@ -46,9 +49,14 @@ def parse_benchmark_list(values):
 def load_ipc_table(path):
     grouped = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0]))
     with path.open(newline="") as f:
-        reader = csv.DictReader(f)
+        if path.suffix.lower() == '.json':
+            reader = json.load(f)
+            fieldnames = set.intersection(*(set(row) for row in reader)) if reader else set()
+        else:
+            reader = csv.DictReader(f)
+            fieldnames = set(reader.fieldnames or [])
         required = {"benchmark", "sm", "ipc"}
-        missing = required - set(reader.fieldnames or [])
+        missing = required - fieldnames
         if missing:
             raise SystemExit(f"{path} missing required columns: {', '.join(sorted(missing))}")
 
@@ -190,7 +198,7 @@ def main():
             "Each step combines immediate one-SM gain and remaining-SM lookahead gain."
         )
     )
-    parser.add_argument("--ipc-csv", default=DEFAULT_IPC_CSV, help="Input ipc_lookup.csv path.")
+    parser.add_argument("--ipc-csv", "--ipc-lookup", default=DEFAULT_IPC_CSV, help="Input IPC lookup (CSV or JSON); defaults to local CSV or bundled reference.")
     parser.add_argument(
         "--config",
         default=DEFAULT_CONFIG,

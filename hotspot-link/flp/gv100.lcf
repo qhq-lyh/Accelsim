@@ -10,6 +10,8 @@
 # <Resistivity in (m-K)/W>
 # <Thickness in m>
 # <floorplan file>
+# 本文件的相对 floorplan 路径由 thermal_scripts.py 按 LCF 所在目录解析，
+# 随后生成包含绝对路径的运行副本，再传给 HotSpot。
 
 # Layer 0: GV100 active silicon layer.
 # p_chip=1.750063e6, k_chip=100.0 W/(m-K), resistivity=1/k=0.01, t_chip=0.000585.
@@ -19,7 +21,7 @@ Y
 1.750063e6
 0.01
 0.000585
-/home/lyhong/Downloads/Accel-Hotsim/hotspot-link/flp/gv100_new.flp
+gv100_new.flp
 
 # Layer 1: GV100 thermal interface material (TIM).
 # p_interface=1.802e6, k_interface=1.2 W/(m-K), resistivity=1/k=0.8333333333, t_interface=0.000135.
@@ -29,4 +31,4 @@ N
 1.802e6
 0.8333333333
 0.000135
-/home/lyhong/Downloads/Accel-Hotsim/hotspot-link/flp/gv100_new_tim.flp
+gv100_new_tim.flp

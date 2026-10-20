@@ -30,6 +30,7 @@ BASE = ROOT/'hotspot-link'
 sys.path.insert(0,str(ROOT/'scripts'))
 from Alg3_compute_safe_frequency import (DEFAULT_GCB, DEFAULT_MODEL, GridModel,
     PowerWindows, config_values, dump_json, floorplan, sha256, solve_frequency, write_ptrace)
+from Alg1_compute_sm_allocation import DEFAULT_IPC_CSV
 
 
 def run_hotspot(args, names, power, directory, plot=True):
@@ -279,7 +280,8 @@ def main():
     p.add_argument('--run-dir',type=Path,required=True,help='Completed first run, or input template when --allocate-first is set')
     p.add_argument('--allocate-first',action='store_true',help='Run Alg1 -> Alg2 -> first simulation before Alg3')
     p.add_argument('--benchmarks',help='With --allocate-first: comma-separated benchmark names in CUDA stream 1,2,... order')
-    p.add_argument('--ipc-csv',type=Path,default=ROOT/'IPC-sm/ipc_lookup.csv')
+    p.add_argument('--ipc-csv','--ipc-lookup',type=Path,default=DEFAULT_IPC_CSV,
+                   help='IPC lookup CSV or JSON; defaults to local CSV or bundled reference')
     p.add_argument('--allocation-alpha',type=float,default=.5)
     p.add_argument('--initial-frequency-mhz',type=float,help='With --allocate-first: initial Core/ICNT/L2 MHz, DRAM unchanged')
     p.add_argument('--out-dir',type=Path,required=True,help='New, empty output directory')

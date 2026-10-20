@@ -29,7 +29,6 @@ import json
 import math
 import os
 from pathlib import Path
-import sys
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
 import numpy as np
 import pandas as pd
@@ -38,10 +37,9 @@ from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import splu
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_GCB = Path('/home/lyhong/Downloads/hotspot_with_model_extract/model_extract')
-DEFAULT_MODEL = ROOT/'manual-results/sm-peak-frequency-20261009/activity-model/activity_model.json'
-sys.path.insert(0, str(ROOT/'manual-workflow'))
-from fit_sm_activity_power import FEATURES, COUNTERS, activity_rates
+DEFAULT_GCB = ROOT/'hotspot-link/model_extract'
+DEFAULT_MODEL = ROOT/'scripts/models/qv100_activity_power.json'
+from sm_activity_power import FEATURES, COUNTERS, activity_rates
 
 
 def dump_json(path, value):
