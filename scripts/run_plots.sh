@@ -2,9 +2,18 @@
 set -e
 
 # === 1. 基础路径 ===
-ROOT_DIR="$(pwd)"
-SCRIPT_DIR="$ROOT_DIR/Lyhong_scripts"
-SIM_ROOT_BASE="$ROOT_DIR/sim_run_11.8"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+# 默认沿用原来的 sim_run_11.8；可传入其他目录，如 bash scripts/run_plots.sh sim_run_12.8。
+SIM_ROOT_BASE="${1:-$ROOT_DIR/sim_run_11.8}"
+# 只执行原 Lyhong 绘图流程，避免选中 scripts 中其他 plot_*.py。
+PLOT_SCRIPTS=(
+    plot_core_change.py
+    plot_log.py
+    plot_power_trace.py
+    plot_sm_log.py
+    plot_staticP_static_P_peractive.py
+)
 
 # === 2. 遍历 sim_run_11.8 下的所有一级子目录 ===
 for SIM_ROOT in "$SIM_ROOT_BASE"/*; do
@@ -41,13 +50,15 @@ for SIM_ROOT in "$SIM_ROOT_BASE"/*; do
 
     echo "Target directory: $LEVEL2_DIR"
 
-    # === 5. 复制 plot_*.py ===
-    cp "$SCRIPT_DIR"/plot_*.py "$LEVEL2_DIR"/
+    # === 5. 复制原流程使用的绘图脚本 ===
+    for py in "${PLOT_SCRIPTS[@]}"; do
+        cp "$SCRIPT_DIR/$py" "$LEVEL2_DIR/"
+    done
 
     # === 6. 进入目标目录并运行 ===
     (
         cd "$LEVEL2_DIR"
-        for py in plot_*.py; do
+        for py in "${PLOT_SCRIPTS[@]}"; do
             echo "Running $py ..."
             python3 "$py"
         done
