@@ -41,6 +41,7 @@ import re
 import shutil
 import glob
 import datetime
+import hashlib
 import yaml
 import common
 import analyze_trace_features
@@ -660,6 +661,30 @@ else:
     version_string = extract_version(simulator_path, "accelsim") + extract_version(
         gpgpusim_path, "gpgpusim"
     )
+    # Check the selected executable against the selected model, before submitting
+    # a job. Switching GPGPUSIM_ROOT can leave a frontend with a different ABI.
+    check_env = os.environ.copy()
+    check_env["LD_LIBRARY_PATH"] = os.path.dirname(gpgpusim_path) + ":" + check_env.get("LD_LIBRARY_PATH", "")
+    link_check = subprocess.run(
+        ["ldd", "-r", simulator_path], env=check_env,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+    )
+    if link_check.returncode != 0 or re.search(r"undefined symbol:|not found", link_check.stdout):
+        sys.exit(
+            "ERROR - Accel-Sim and the selected GPGPU-Sim library are incompatible.\n"
+            "Executable: " + simulator_path + "\nLibrary: " + gpgpusim_path + "\n"
+            + link_check.stdout
+            + "Reset GPGPUSIM_ROOT/GPGPUSIM_SETUP_ENVIRONMENT_WAS_RUN, source the intended "
+            "setup_environment.sh, and rebuild the frontend before launching."
+        )
+    # Version labels alone do not identify a build's actual contents. Keep each
+    # executable and model together, and avoid reusing stale same-label copies.
+    build_hash = hashlib.sha256()
+    for build_file in (simulator_path, gpgpusim_path):
+        with open(build_file, "rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                build_hash.update(chunk)
+    version_string += "-pair-" + build_hash.hexdigest()[:16]
 running_sim_dir = os.path.join(
     options.run_directory, "gpgpu-sim-builds", version_string
 )
@@ -673,6 +698,10 @@ if not os.path.exists(running_sim_dir):
 
 if not os.path.exists(os.path.join(running_sim_dir, os.path.basename(simulator_path))):
     shutil.copy(simulator_path, running_sim_dir)
+if options.trace_dir != "":
+    model_snapshot = os.path.join(running_sim_dir, "libcudart.so")
+    if not os.path.exists(model_snapshot):
+        shutil.copy(gpgpusim_path, model_snapshot)
 options.simulator_dir = running_sim_dir
 
 common.load_defined_yamls()

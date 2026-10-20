@@ -62,7 +62,8 @@ def load_grid_layer(path: Path, rows: int, cols: int, layer: int):
         )
 
     kelvin = data[start:end, 1].reshape(rows, cols)
-    return kelvin - 273.15
+    # HotSpot row zero is at the top; floorplan y is measured from the bottom.
+    return np.flipud(kelvin) - 273.15
 
 
 def flp_extent_mm(blocks):
@@ -156,7 +157,7 @@ def plot_heatmap(grid_c, blocks, out: Path, title: str, annotate: bool, limit_ex
     ax.scatter([x_min_mm], [y_min_mm], marker="o", s=70, facecolors="none", edgecolors="cyan", linewidths=2.0)
 
     ax.annotate(
-        f"Max {max_temp:.2f} C\nGrid({max_row},{max_col})",
+        f"Max {max_temp:.2f} C\nGrid({rows - 1 - max_row},{max_col})",
         xy=(x_max_mm, y_max_mm),
         xytext=(-8, 8),
         textcoords="offset points",
@@ -169,7 +170,7 @@ def plot_heatmap(grid_c, blocks, out: Path, title: str, annotate: bool, limit_ex
     )
 
     ax.annotate(
-        f"Min {min_temp:.2f} C\nGrid({min_row},{min_col})",
+        f"Min {min_temp:.2f} C\nGrid({rows - 1 - min_row},{min_col})",
         xy=(x_min_mm, y_min_mm),
         xytext=(-8, -24),
         textcoords="offset points",
@@ -200,6 +201,8 @@ def main():
     parser.add_argument("--cols", type=int, default=64, help="Grid cols. Must match HotSpot -grid_cols.")
     parser.add_argument("--layer", type=int, default=0, help="Layer index to plot. Layer 0 is the active silicon layer.")
     parser.add_argument("--annotate", action="store_true", help="Annotate non-SM blocks such as L2/HBM.")
+    parser.add_argument("--extrema-region", choices=("all", "sm"), default="sm",
+                        help="Limit extrema markers to SMs or include the entire silicon grid.")
     args = parser.parse_args()
 
     if not args.grid_steady.is_file():
@@ -214,13 +217,13 @@ def main():
     blocks = load_flp(args.flp)
     grid_c = load_grid_layer(args.grid_steady, args.rows, args.cols, args.layer)
     title = f"GV100 grid steady temperature heatmap, layer {args.layer}"
-    plot_heatmap(grid_c, blocks, args.out, title, args.annotate, LIMIT_EXTREMA_TO_SM_REGION)
+    plot_heatmap(grid_c, blocks, args.out, title, args.annotate, args.extrema_region == "sm")
 
     print(f"Input grid steady: {args.grid_steady}")
     print(f"Input floorplan: {args.flp}")
     print(f"Grid: {args.rows} x {args.cols}, layer={args.layer}")
     print(f"Temperature range: {grid_c.min():.2f} C to {grid_c.max():.2f} C")
-    print(f"Limit min/max markers to SM region: {LIMIT_EXTREMA_TO_SM_REGION}")
+    print(f"Limit min/max markers to SM region: {args.extrema_region == 'sm'}")
     print(f"Wrote PNG: {args.out}")
 
 
